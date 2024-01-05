@@ -1,117 +1,131 @@
-import { useState } from "react";
+import React, { useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
 import { useForm } from "react-hook-form";
+import "react-toastify/dist/ReactToastify.css";
+import BooksPage from "./HomePage";
 import "./RegistrationForm.css";
-import { Link } from "react-router-dom";
-
-
-
-function RegistrationForm() {                           
-  const {                                                      // Initialize the useForm hook, which will handle form validation and submission
+export default function FormUse() {
+  
+  
+  const {
     register,
     handleSubmit,
-    formState: { errors },
     watch,
-  } = useForm();
-  const [formValid, setFormValid] = useState(false);           // Initialize a state variable called formValid, which will be used to show a message on the screen when the form is successfully submitted
+    reset,
+    formState: { errors, isSubmitSuccessful, isSubmitted },
+  } = useForm({
+    // defaultValues: {
+      //   firstName: "Kalvium",
+      //   lastName: "LPU",
+      //   email: "kalvim@community.com",
+      // },
+    });
+    
+    //   console.log(watch())
+    
+    //^ Function that will execute for the data which is submitted
+    const password = watch("password");
+    const FormSubmitHandler = (data) => {
+      console.log("data:", data);
+    };
+    
+    // console.log("errors", errors);
+    
+    return (
+      <div id="form">
+      <ToastContainer />
+      <fieldset>
+        <legend>CREATE ACCOUNT</legend>
 
-  const onSubmit = (data) => {
-    if (data.password !== data.confirmPassword) {              // Check if the password and confirm password fields match
-      alert("Passwords do not match");
-      return;
-    }
-    setFormValid(true);                                          // Set form as valid and display success message
-    document.getElementById("message").style.display = "block";
-  };
+        <form onSubmit={handleSubmit(FormSubmitHandler)}>
+          {isSubmitSuccessful && (
+            <div className="success">
+              <p>Registration Successful! 🥂</p>
+            </div>
+          )}
+          <div>
+            <label> First Name : </label>
+            <input
+              type="text"
+              name="firstName"
+              {...register("firstName", {
+                required: "Fill First Name",
+                minLength: {
+                  value: 4,
+                  message: "Minimum 4 characters required",
+                },
+              })}
+            />
+            {/* {errors.firstName && <p className="err">{errors.firstName.message}</p>} */}
+            <p className="err">{errors.firstName?.message}</p>
+          </div>
 
-  return (
-    <div className="page">
-      <h1>Registration Form</h1>
-      <h4 id="message" style={{ display: "none" }}>
-        Registration successful!
-      </h4>
-      <form className="form" onSubmit={handleSubmit(onSubmit)}>
-        <div>
-          <input
-            className="inputBox"
-            type="text"
-            placeholder="First Name"
-            {...register("firstName", { required: true })}
-          />
-          {errors.firstName && <p>First Name is required</p>}        {/* Show an error message if the first name field is empty */}
-        </div>
+          <div>
+                <label> Email : </label>
+                <input
+                  type="email"
+                  name="email"
+                  {...register("email", {
+                    required: "Email Required",
+                    pattern: {
+                      value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                      message: "Invalid Email",
+                    },
+                  })}
+                />
+                <p className="err">{errors.email?.message}</p>
+          </div>
 
-        <div>
-          <input
-            className="inputBox"
-            type="email"
-            placeholder="Email"
-            {...register("email", { required: true, pattern: /0/ })}
-          />
-          {errors.email?.type === "required" && <p>Email is required</p>}    {/* Show an error message if the email field is empty or contains an invalid email address */}
-          {errors.email?.type === "pattern" && <p>Invalid email</p>}
-        </div>
 
-        <div>
-          <input
-            className="inputBox"
-            type="password"
-            placeholder="Password"
-            {...register("password", {
-              required: true,
-              minLength: 5,
-              maxLength: 20,
-            })}
-          />
-          {errors.password?.type === "required" && <p>Password is required</p>}   {/* Show an error message if the password field is empty or contains an invalid password */}
-          {errors.password?.type === "minLength" && (
-            <p>Password must be more than 4 characters</p>
-          )}
-          {errors.password?.type === "maxLength" && (
-            <p>Password cannot be more than 20 characters</p>
-          )}
-        </div>
 
-        <div>
-          <input
-            className="inputBox"
-            type="password"
-            placeholder="Confirm Password"
-            {...register("confirmPassword", {
-              required: true,
-              minLength: 5,
-              maxLength: 20,
-              validate: (value) => value === watch("password"),
-            })}
-          />
-          {errors.confirmPassword?.type === "required" && (         
-            <p>Confirm Password is required</p>                          /* Show an error message if the confirm password field is empty or contains an invalid password */
-          )}
-          {errors.confirmPassword?.type === "minLength" && (
-            <p>Confirm Password must be more than 4 characters</p>
-          )}
-          {errors.confirmPassword?.type === "maxLength" && (
-            <p>Confirm Password cannot be more than 20 characters</p>
-          )}
-          {errors.confirmPassword?.type === "validate" && (
-            <p>Passwords do not match</p>
-          )}
-        </div>
+          <div>
+            <label> Password : </label>
+            <input
+              type="password"
+              name="password"
+              {...register("password", {
+                required: "Password Required",
+                minLength: {
+                  value: 8,
+                  message: "Minimum 8 characters required",
+                },
+                pattern: {
+                  value: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$/,
+                  message: "Password Not Valid (Use Special Characters & Numbers)",
+                },
+              })}
+            />
+            <p className="err">{errors.password?.message}</p>
+          </div>
+              
+          <div>
+            <label> Confirm Password : </label>
+            <input
+              type="password"
+              name="Confirmpassword"
+              {...register("Confirmpassword", {                                                                   
+                required: "Re-type your Required",
+                validate: (value) => value === password,
+                message:"Passwords do not match!",
+                minLength: {
+                  value: 8,
+                  message: "Minimum 8 characters required",
+                },
+                pattern: {
+                  value: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$/,
+                  message: "Password Not Valid (Use Special Characters & Numbers)",
+                },
+              })}
+            />
+            <p className="err">{errors.password?.message}</p>
+          </div>
 
-        <button
-          type="submit"
-          id="registerButton"
-          disabled={Object.keys(errors).length > 0}
-        >
-          Register
-        </button>
-        {formValid && (
-          <Link to="/">
-             <button id="HomepageButton">Back to home</button>    {/* onclick back to home  */}
-          </Link>
-        )}
-      </form>
+          <div>
+            <input type="submit" value="SIGN UP" />
+          </div>
+          {/* <button onClick={()=>{reset}}>RESET</button> */}
+        </form>
+      </fieldset>
     </div>
   );
 }
-
-export default RegistrationForm;

@@ -70,7 +70,7 @@ function BooksPage() {
             <img src={item.imageLinks.thumbnail} alt="" />
             <h4 key={item.id}>{item.title}</h4>
             <p>
-              {item.averageRating ? (
+              {item.averageRating  ? (
                 <span>
                   <h3>{item.averageRating}⭐</h3>
                   <h3 className="cost">FREE</h3>
